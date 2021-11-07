@@ -20,7 +20,10 @@ of earthquakes all over the world for the last seven days.
 
 # Description
 
-
+* Created a base layer using Mapbox in order to hold three base map styles. 
+* Overlays are added for earthquakes, tectonic plates and major earthquakes. 
+* The data is obtained by APcalls using d3.json()
+* Created functions to style the circle markers with the size and color as per the magnitude.  
 
 
 
