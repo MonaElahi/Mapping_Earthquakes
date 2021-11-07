@@ -40,7 +40,8 @@ let baseMaps = {
 let earthquakes = new L.LayerGroup();
 //Tectonic
 let tectonicPlates = new L.LayerGroup();
-
+// Major Earthquake
+let majorEq = new L.LayerGroup();
 // 2. Add a reference to the tectonic plates group to the overlays object.
 //  let overlays = {
   
@@ -49,6 +50,7 @@ let tectonicPlates = new L.LayerGroup();
 let overlays = {
   "Tectonic Plates": tectonicPlates,
   "Earthquakes": earthquakes,
+  "Major Earthquake": majorEq,
 };
 
 // Then we add a control to the map that will allow the user to change which
@@ -126,6 +128,52 @@ d3.json("https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.geoj
 
   // Then we add the earthquake layer to our map.
   earthquakes.addTo(map);
+// 3. Retrieve the major earthquake GeoJSON data >4.5 mag for the week.
+d3.json("https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/4.5_week.geojson").then(function(data) {
+  function styleInfo(feature) {
+    return {
+      opacity: 1,
+      fillOpacity: 1,
+      fillColor: getColor(feature.properties.mag),
+      color: "#000000",
+      radius: getRadius(feature.properties.mag),
+      stroke: true,
+      weight: 0.5
+    };
+  }
+  function getColor(magnitude) {
+    if (magnitude > 5) {
+      return "#ea2c2c";
+    }
+    if (magnitude >= 4) {
+      return "#eecc00";
+    }
+    return "#98ee00";
+  }
+  function getRadius(magnitude) {
+    if (magnitude === 0) {
+      return 1;
+    }
+    return magnitude * 4;
+  }
+
+  L.geoJson(data, 
+    { 
+      pointToLayer:function(feature, latlng){
+        console.log(data);
+        return L.circleMarker(latlng)
+      },
+      style:styleInfo,
+      onEachFeature:function(feature, layer){
+        layer.bindPopup("Magnitude: " + feature.properties.mag + "<br>Location: " + feature.properties.place);
+      }
+    }).addTo(majorEq);
+    majorEq.addTo(map);
+
+
+  });
+
+
 
   // Here we create a legend control object.
 let legend = L.control({
@@ -178,4 +226,3 @@ d3.json(tectonic).then(function(data) {
 });
 
 
-  
